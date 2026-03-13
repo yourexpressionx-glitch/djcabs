@@ -31,7 +31,6 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) =
           />
         </div>
         <h1 className="text-xl font-bold text-black">DARJEELING CABS</h1>
-        <p className="text-black text-xs">Dawa Lama Dukpa</p>
         <div className="mt-1">
           <p className="text-black font-bold text-sm">TAX INVOICE</p>
         </div>
@@ -41,7 +40,8 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) =
       <div className="mb-4 pb-3 border-b border-gray-300 text-xs">
         <div className="grid grid-cols-2 gap-4">
           <div className="text-black">
-            <p className="font-semibold">Darjeeling Cabs</p>
+            <p className="font-semibold">Dawa Lama Dukpa</p>
+            <p>Darjeeling Cabs</p>
             <p>Jorebunglow near the forest office</p>
             <p>Darjeeling, West Bengal - 734102</p>
           </div>

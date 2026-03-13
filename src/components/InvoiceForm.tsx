@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { InvoiceFormData, InvoiceData, DailyItinerary } from '@/types/invoice';
 import { generateInvoiceData } from '@/lib/invoiceUtils';
-import { generatePDFInvoice, printPDFInvoice } from '@/lib/pdfGenerator';
+import { generatePDFInvoice } from '@/lib/pdfGenerator';
 import { generateWhatsAppURL } from '@/lib/invoiceUtils';
 
 interface InvoiceFormProps {
@@ -97,11 +97,6 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
   const handleDownloadPDF = useCallback(async () => {
     const invoiceData = generateInvoiceData(formData);
     await generatePDFInvoice(invoiceData);
-  }, [formData]);
-
-  const handlePrintPDF = useCallback(async () => {
-    const invoiceData = generateInvoiceData(formData);
-    await printPDFInvoice(invoiceData);
   }, [formData]);
 
   const handleWhatsAppShare = useCallback(() => {
@@ -462,13 +457,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
           >
             📥 Download PDF
           </button>
-          <button
-            type="button"
-            onClick={handlePrintPDF}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition"
-          >
-            🖨️ Print Invoice
-          </button>
+
         </div>
         <button
           type="button"

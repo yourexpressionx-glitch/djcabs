@@ -74,8 +74,6 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   // Company Name
   addText('DARJEELING CABS', pageWidth / 2, yPosition, 16, 'bold', [0, 0, 0], 'center');
   yPosition += 4;
-  addText('Dawa Lama Dukpa', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
-  yPosition += 4;
 
   // TAX INVOICE label
   addText('TAX INVOICE', pageWidth / 2, yPosition, 12, 'bold', [0, 100, 0], 'center');
@@ -91,6 +89,8 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   doc.setTextColor(0, 0, 0);
 
   // Left side - Address
+  doc.text('Dawa Lama Dukpa', margin, yPosition);
+  yPosition += 3;
   doc.text('Darjeeling Cabs', margin, yPosition);
   yPosition += 3;
   doc.text('Jorebunglow near the forest office', margin, yPosition);
@@ -351,28 +351,4 @@ export const generatePDFInvoice = async (invoiceData: InvoiceData): Promise<void
   
   generateProfessionalPDF(doc, invoiceData, logoBase64);
   doc.save(`${invoiceData.invoiceNumber}.pdf`);
-};
-
-/**
- * Generate and open PDF invoice in new window for printing
- */
-export const printPDFInvoice = async (invoiceData: InvoiceData): Promise<void> => {
-  const doc = new jsPDF();
-  
-  // Load logo
-  let logoBase64 = '';
-  try {
-    logoBase64 = await imageToBase64('/images/logo.png');
-  } catch (error) {
-    console.warn('Logo not loaded, continuing without it');
-  }
-  
-  generateProfessionalPDF(doc, invoiceData, logoBase64);
-
-  // Open in new window for printing
-  const pdfDataUri = doc.output('datauristring');
-  const printWindow = window.open(pdfDataUri, '_blank');
-  if (printWindow) {
-    printWindow.print();
-  }
 };
