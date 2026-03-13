@@ -60,10 +60,10 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   if (logoBase64) {
     try {
       const logoWidth = 25;
+      const logoHeight = 20;
       const logoX = (pageWidth - logoWidth) / 2;
-      // Only specify width, let jsPDF calculate height to maintain aspect ratio
-      doc.addImage(logoBase64, 'PNG', logoX, yPosition, logoWidth);
-      yPosition += 20;
+      doc.addImage(logoBase64, 'PNG', logoX, yPosition, logoWidth, logoHeight);
+      yPosition += 22;
     } catch (error) {
       console.error('Error adding logo:', error);
     }
