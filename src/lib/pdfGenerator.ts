@@ -63,9 +63,9 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   addText('DARJEELING CABS', pageWidth / 2, yPosition, 20, 'bold', [0, 0, 0], 'center');
   
   yPosition += 7;
-  addText('📍 Darjeeling • Sikkim • Bhutan • Nepal', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
+  addText('Darjeeling • Sikkim • Bhutan • Nepal', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
   yPosition += 4;
-  addText('📧 darjeelingcabs.com@gmail.com', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
+  addText('darjeelingcabs.com@gmail.com', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
   yPosition += 5;
 
   // TAX INVOICE label
@@ -105,7 +105,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
     doc.text(invoiceData.customerCity, margin, yPosition);
     yPosition += 3;
   }
-  doc.text(`📱 ${invoiceData.phoneNumber}`, margin, yPosition);
+  doc.text(`Phone: ${invoiceData.phoneNumber}`, margin, yPosition);
   yPosition += 3;
   doc.text(`Passengers: ${invoiceData.numberOfPassengers}`, margin, yPosition);
   yPosition += 3;
