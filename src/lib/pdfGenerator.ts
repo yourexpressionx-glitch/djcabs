@@ -31,11 +31,11 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   let yPosition = margin;
 
   // Helper functions
-  const addText = (text: string, x: number, y: number, fontSize = 11, fontStyle: 'normal' | 'bold' = 'normal', color = [0, 0, 0]) => {
+  const addText = (text: string, x: number, y: number, fontSize = 11, fontStyle: 'normal' | 'bold' = 'normal', color = [0, 0, 0], align: 'left' | 'center' | 'right' = 'left') => {
     doc.setFontSize(fontSize);
     doc.setFont('helvetica', fontStyle);
     doc.setTextColor(color[0], color[1], color[2]);
-    doc.text(text, x, y);
+    doc.text(text, x, y, { align });
   };
 
   const addLine = (y: number, startX = margin, endX = pageWidth - margin, width = 0.5) => {
@@ -60,18 +60,16 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   }
 
   // Company Name
-  addText('DARJEELING CABS', pageWidth / 2, yPosition, 20, 'bold', [0, 0, 0]);
-  doc.setTextColor(0, 0, 0);
-  doc.textAlign = 'center';
+  addText('DARJEELING CABS', pageWidth / 2, yPosition, 20, 'bold', [0, 0, 0], 'center');
   
   yPosition += 7;
-  addText('📍 Darjeeling • Sikkim • Bhutan • Nepal', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0]);
+  addText('📍 Darjeeling • Sikkim • Bhutan • Nepal', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
   yPosition += 4;
-  addText('📧 darjeelingcabs.com@gmail.com', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0]);
+  addText('📧 darjeelingcabs.com@gmail.com', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
   yPosition += 5;
 
   // TAX INVOICE label
-  addText('TAX INVOICE', pageWidth / 2, yPosition, 14, 'bold', [0, 100, 0]);
+  addText('TAX INVOICE', pageWidth / 2, yPosition, 14, 'bold', [0, 100, 0], 'center');
   yPosition += 8;
 
   // Border line
@@ -79,7 +77,6 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   yPosition += 4;
 
   // ===== INVOICE DETAILS =====
-  doc.setTextAlign = 'left';
   addText(`Invoice No: ${invoiceData.invoiceNumber}`, margin, yPosition, 9, 'bold', [0, 0, 0]);
   
   const rightX = pageWidth - 50;
@@ -289,14 +286,13 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   doc.setFontSize(9);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(0, 0, 0);
-  doc.textAlign = 'center';
-  doc.text('Thank you for travelling with Darjeeling Cabs!', pageWidth / 2, yPosition);
+  doc.text('Thank you for travelling with Darjeeling Cabs!', pageWidth / 2, yPosition, { align: 'center' });
   
   yPosition += 4;
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 100, 100);
-  doc.text(`Payment Method: ${invoiceData.paymentMethod}`, pageWidth / 2, yPosition);
+  doc.text(`Payment Method: ${invoiceData.paymentMethod}`, pageWidth / 2, yPosition, { align: 'center' });
 };
 
 /**
