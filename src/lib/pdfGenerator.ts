@@ -22,6 +22,15 @@ const imageToBase64 = async (imagePath: string): Promise<string> => {
 };
 
 /**
+ * Format currency for PDF (replace rupees symbol with Rs.)
+ */
+const formatCurrencyForPDF = (amount: number): string => {
+  const formatted = formatCurrency(amount);
+  // Replace rupees symbol (₹) with Rs.
+  return formatted.replace('₹', 'Rs. ');
+};
+
+/**
  * Helper function to generate professional PDF layout matching preview design
  */
 const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase64?: string): void => {
@@ -53,7 +62,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
       const logoWidth = 20;
       const logoX = (pageWidth - logoWidth) / 2;
       doc.addImage(logoBase64, 'PNG', logoX, yPosition, logoWidth, 15);
-      yPosition += 18;
+      yPosition += 25;
     } catch (error) {
       console.error('Error adding logo:', error);
     }
@@ -139,7 +148,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   doc.text('Destination', col2X, yPosition);
   doc.text('Days', col4X, yPosition);
   doc.text('Vehicle', col4X + 20, yPosition);
-  doc.text('Rate (₹)', col5X, yPosition);
+  doc.text('Rate (Rs.)', col5X, yPosition);
 
   yPosition += 5;
 
@@ -167,7 +176,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
     doc.text(day.vehicleType, col4X + 20, yPosition);
     
     doc.setFont('helvetica', 'bold');
-    doc.text(formatCurrency(day.rate), col5X, yPosition);
+    doc.text(formatCurrencyForPDF(day.rate), col5X, yPosition);
     
     yPosition += 4;
   });
@@ -188,14 +197,14 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   doc.setFont('helvetica', 'normal');
   doc.text('Trip Charges', labelX, yPosition);
   doc.setFont('helvetica', 'bold');
-  doc.text(formatCurrency(tripTotal), rightColX, yPosition);
+  doc.text(formatCurrencyForPDF(tripTotal), rightColX, yPosition);
   yPosition += 3;
 
   if (invoiceData.parkingCharges > 0) {
     doc.setFont('helvetica', 'normal');
     doc.text('Parking', labelX, yPosition);
     doc.setFont('helvetica', 'bold');
-    doc.text(formatCurrency(invoiceData.parkingCharges), rightColX, yPosition);
+    doc.text(formatCurrencyForPDF(invoiceData.parkingCharges), rightColX, yPosition);
     yPosition += 3;
   }
 
@@ -203,7 +212,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
     doc.setFont('helvetica', 'normal');
     doc.text('Toll', labelX, yPosition);
     doc.setFont('helvetica', 'bold');
-    doc.text(formatCurrency(invoiceData.tollCharges), rightColX, yPosition);
+    doc.text(formatCurrencyForPDF(invoiceData.tollCharges), rightColX, yPosition);
     yPosition += 3;
   }
 
@@ -211,7 +220,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
     doc.setFont('helvetica', 'normal');
     doc.text('Driver Allowance', labelX, yPosition);
     doc.setFont('helvetica', 'bold');
-    doc.text(formatCurrency(invoiceData.driverAllowance), rightColX, yPosition);
+    doc.text(formatCurrencyForPDF(invoiceData.driverAllowance), rightColX, yPosition);
     yPosition += 3;
   }
 
@@ -219,7 +228,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
     doc.setFont('helvetica', 'normal');
     doc.text('Extra Charges', labelX, yPosition);
     doc.setFont('helvetica', 'bold');
-    doc.text(formatCurrency(invoiceData.extraCharges), rightColX, yPosition);
+    doc.text(formatCurrencyForPDF(invoiceData.extraCharges), rightColX, yPosition);
     yPosition += 3;
   }
 
@@ -236,7 +245,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 0, 0);
   doc.text('Subtotal', labelX, yPosition);
-  doc.text(formatCurrency(invoiceData.calculations.subtotal), rightColX, yPosition);
+  doc.text(formatCurrencyForPDF(invoiceData.calculations.subtotal), rightColX, yPosition);
   yPosition += 4;
 
   // Discount (if any)
@@ -244,7 +253,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(220, 50, 50);
     doc.text('Discount', labelX, yPosition);
-    doc.text(`-${formatCurrency(invoiceData.discount)}`, rightColX, yPosition);
+    doc.text(`-${formatCurrencyForPDF(invoiceData.discount)}`, rightColX, yPosition);
     yPosition += 4;
   }
 
@@ -254,7 +263,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 0, 0);
   doc.text('Total Amount', labelX, yPosition);
-  doc.text(formatCurrency(invoiceData.calculations.totalCharges), rightColX, yPosition);
+  doc.text(formatCurrencyForPDF(invoiceData.calculations.totalCharges), rightColX, yPosition);
   yPosition += 4;
 
   // Advance Paid (if any)
@@ -262,7 +271,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(50, 100, 200);
     doc.text('Advance Paid', labelX, yPosition);
-    doc.text(`-${formatCurrency(invoiceData.advancePaid)}`, rightColX, yPosition);
+    doc.text(`-${formatCurrencyForPDF(invoiceData.advancePaid)}`, rightColX, yPosition);
     yPosition += 4;
   }
 
@@ -276,7 +285,7 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   doc.setFontSize(11);
   doc.setTextColor(0, 100, 0);
   doc.text('BALANCE DUE', labelX, yPosition + 0.5);
-  doc.text(formatCurrency(invoiceData.calculations.balanceDue), rightColX, yPosition + 0.5);
+  doc.text(formatCurrencyForPDF(invoiceData.calculations.balanceDue), rightColX, yPosition + 0.5);
   
   // ===== FOOTER =====
   yPosition = pageHeight - 15;
