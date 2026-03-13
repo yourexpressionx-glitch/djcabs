@@ -3,184 +3,316 @@ import { InvoiceData } from '@/types/invoice';
 import { formatCurrency } from './invoiceUtils';
 
 /**
- * Helper function to generate PDF layout
+ * Helper function to generate professional PDF layout
  */
-const generatePDFLayout = (doc: jsPDF, invoiceData: InvoiceData): void => {
+const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData): void => {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  let yPosition = 12;
+  const margin = 12;
+  let yPosition = margin;
+
+  // Color definitions
+  const primaryColor = [25, 118, 210]; // Blue
+  const accentColor = [76, 175, 80]; // Green
+  const darkGray = [33, 33, 33];
+  const lightGray = [240, 240, 240];
+  const borderGray = [200, 200, 200];
 
   // Helper functions
-  const addText = (text: string, x: number, y: number, fontSize = 10, fontStyle: 'normal' | 'bold' = 'normal', align: 'left' | 'center' | 'right' = 'left') => {
+  const addText = (text: string, x: number, y: number, fontSize = 10, fontStyle: 'normal' | 'bold' = 'normal', color = darkGray) => {
     doc.setFontSize(fontSize);
     doc.setFont('helvetica', fontStyle);
-    if (align === 'center') {
-      doc.text(text, pageWidth / 2, y, { align: 'center' });
-    } else if (align === 'right') {
-      doc.text(text, pageWidth - 15, y, { align: 'right' });
+    doc.setTextColor(color[0], color[1], color[2]);
+    doc.text(text, x, y);
+  };
+
+  const addLine = (y: number, startX = margin, endX = pageWidth - margin, width = 0.5, color = borderGray) => {
+    doc.setLineWidth(width);
+    doc.setDrawColor(color[0], color[1], color[2]);
+    doc.line(startX, y, endX, y);
+  };
+
+  const addRect = (x: number, y: number, width: number, height: number, color: number[], fillOnly = true) => {
+    doc.setFillColor(color[0], color[1], color[2]);
+    if (fillOnly) {
+      doc.rect(x, y, width, height, 'F');
     } else {
-      doc.text(text, x, y);
+      doc.setDrawColor(color[0], color[1], color[2]);
+      doc.rect(x, y, width, height);
     }
   };
 
-  const addLine = (y: number, width: number = pageWidth - 20) => {
-    doc.setLineWidth(0.4);
-    doc.line(10, y, 10 + width, y);
-  };
+  // ===== HEADER SECTION =====
+  // Blue header background
+  addRect(0, 0, pageWidth, 35, primaryColor);
 
-  // Header
-  addText('DARJEELING CABS', 15, yPosition, 16, 'bold');
-  yPosition += 7;
-  addText('📍 Darjeeling • Sikkim • Bhutan • Nepal', 15, yPosition, 9, 'normal');
-  yPosition += 5;
-  addText('📧 darjeelingcabs.com@gmail.com', 15, yPosition, 9, 'normal');
-  yPosition += 6;
-  addLine(yPosition);
+  // Company name
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('DARJEELING CABS', margin + 2, 12);
+
+  // Company tagline
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Premium Taxi & Tour Services', margin + 2, 18);
+  doc.text('Darjeeling • Sikkim • Bhutan • Nepal', margin + 2, 23);
+
+  // Invoice type on the right
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('TAX INVOICE', pageWidth - margin - 45, 15);
+
+  yPosition = 38;
+
+  // ===== INVOICE INFO SECTION =====
+  // Left side - Invoice details
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('INVOICE DETAILS', margin, yPosition);
   yPosition += 5;
 
-  // Tax Invoice title
-  addText('TAX INVOICE', 15, yPosition, 12, 'bold');
-  yPosition += 7;
-
-  // Invoice Details
-  addText(`Invoice No: ${invoiceData.invoiceNumber}`, 15, yPosition, 9, 'normal');
-  addText(`Date: ${invoiceData.invoiceDate}`, pageWidth - 50, yPosition, 9, 'normal');
-  yPosition += 5;
-  addText(`Trip Date: ${invoiceData.tripDate}`, pageWidth - 50, yPosition, 9, 'normal');
-  yPosition += 7;
-
-  // Bill To Section
-  addText('BILL TO:', 15, yPosition, 9, 'bold');
-  yPosition += 5;
-  addText(invoiceData.customerName, 15, yPosition, 9, 'bold');
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setFontSize(8);
+  doc.text(`Invoice #: ${invoiceData.invoiceNumber}`, margin, yPosition);
   yPosition += 4;
+  doc.text(`Date: ${invoiceData.invoiceDate}`, margin, yPosition);
+  yPosition += 4;
+  doc.text(`Trip Date: ${invoiceData.tripDate}`, margin, yPosition);
+
+  // Right side - Company info
+  const rightX = pageWidth - margin - 70;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('COMPANY INFO', rightX, 38);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setFontSize(8);
+  doc.text('darjeelingcabs.com@gmail.com', rightX, 43);
+
+  yPosition = 52;
+  addLine(yPosition, margin, pageWidth - margin, 0.4);
+
+  // ===== BILL TO SECTION =====
+  yPosition += 4;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('BILL TO:', margin, yPosition);
+
+  yPosition += 4;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.text(invoiceData.customerName, margin, yPosition);
+
+  yPosition += 4;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
   if (invoiceData.customerAddress) {
-    addText(invoiceData.customerAddress, 15, yPosition, 8, 'normal');
-    yPosition += 4;
+    doc.text(invoiceData.customerAddress, margin, yPosition);
+    yPosition += 3;
   }
   if (invoiceData.customerCity) {
-    addText(invoiceData.customerCity, 15, yPosition, 8, 'normal');
-    yPosition += 4;
+    doc.text(invoiceData.customerCity, margin, yPosition);
+    yPosition += 3;
   }
-  addText(`Phone: ${invoiceData.phoneNumber}`, 15, yPosition, 8, 'normal');
-  yPosition += 4;
-  addText(`Passengers: ${invoiceData.numberOfPassengers}`, 15, yPosition, 8, 'normal');
+  doc.text(`📱 ${invoiceData.phoneNumber}`, margin, yPosition);
+  yPosition += 3;
+  doc.text(`👥 Passengers: ${invoiceData.numberOfPassengers}`, margin, yPosition);
   if (invoiceData.driverName) {
-    yPosition += 4;
-    addText(`Driver: ${invoiceData.driverName}`, 15, yPosition, 8, 'normal');
+    yPosition += 3;
+    doc.text(`🚗 Driver: ${invoiceData.driverName}`, margin, yPosition);
   }
-  yPosition += 8;
 
-  addLine(yPosition);
+  yPosition += 6;
+  addLine(yPosition, margin, pageWidth - margin, 0.4);
+
+  // ===== ITINERARY TABLE =====
+  yPosition += 4;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('ITINERARY', margin, yPosition);
+
   yPosition += 5;
 
-  // Itinerary Table Header
-  addText('ITINERARY', 15, yPosition, 9, 'bold');
-  yPosition += 6;
+  // Table header with blue background
+  const col1 = margin;
+  const col2 = margin + 12;
+  const col3 = margin + 50;
+  const col4 = margin + 75;
+  const col5 = margin + 105;
+  const col6 = pageWidth - margin - 25;
 
-  // Table headers
-  const col1 = 15;
-  const col2 = 25;
-  const col3 = 75;
-  const col4 = 105;
-  const col5 = 135;
-  const col6 = 170;
+  addRect(col1 - 1, yPosition - 3, pageWidth - 2 * margin + 2, 5, primaryColor);
 
-  doc.setFillColor(200, 200, 200);
-  doc.rect(col1 - 3, yPosition - 4, pageWidth - 28, 6, 'F');
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('Day', col1, yPosition);
+  doc.text('Destination', col2, yPosition);
+  doc.text('Days', col4, yPosition);
+  doc.text('Vehicle', col5, yPosition);
+  doc.text('Rate', col6, yPosition);
 
-  addText('Day', col1, yPosition, 8, 'bold');
-  addText('Destination', col3, yPosition, 8, 'bold');
-  addText('Days', col4, yPosition, 8, 'bold');
-  addText('Vehicle', col5, yPosition, 8, 'bold');
-  addText('Rate (₹)', col6, yPosition, 8, 'bold');
-  yPosition += 6;
+  yPosition += 5;
 
   // Table rows
-  invoiceData.dailyItinerary.forEach((day) => {
-    addText(day.day.toString(), col1, yPosition, 8, 'normal');
-    addText(day.destination, col3, yPosition, 8, 'normal');
-    addText(day.numberOfDays.toString(), col4, yPosition, 8, 'normal');
-    addText(day.vehicleType, col5, yPosition, 8, 'normal');
-    addText(formatCurrency(day.rate), col6, yPosition, 8, 'bold', 'right');
-    yPosition += 5;
+  let rowColor = true;
+  invoiceData.dailyItinerary.forEach((day, idx) => {
+    // Alternate row background
+    if (rowColor) {
+      addRect(col1 - 1, yPosition - 3, pageWidth - 2 * margin + 2, 4, lightGray);
+    }
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+
+    doc.text(day.day.toString(), col1, yPosition);
+    doc.text(day.destination, col2, yPosition);
+    doc.text(day.numberOfDays.toString(), col4, yPosition);
+    doc.text(day.vehicleType, col5, yPosition);
+
+    // Right-aligned rate
+    doc.setFont('helvetica', 'bold');
+    doc.text(formatCurrency(day.rate), col6, yPosition, { align: 'right' });
+
+    yPosition += 4;
+    rowColor = !rowColor;
   });
 
   yPosition += 2;
-  addLine(yPosition);
-  yPosition += 5;
+  addLine(yPosition, margin, pageWidth - margin, 0.5);
 
-  // Trip and Other Charges
+  // ===== CHARGES SECTION =====
+  yPosition += 4;
+
   const tripTotal = invoiceData.dailyItinerary.reduce((sum, day) => sum + day.rate, 0);
-  
-  addText('Trip Charges', 15, yPosition, 9, 'normal');
-  addText(formatCurrency(tripTotal), pageWidth - 15, yPosition, 9, 'normal', 'right');
-  yPosition += 5;
+  const chargesX = pageWidth - margin - 55;
+  const chargesLabelX = chargesX - 40;
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+
+  doc.text('Trip Charges', chargesLabelX, yPosition);
+  doc.setFont('helvetica', 'bold');
+  doc.text(formatCurrency(tripTotal), chargesX, yPosition, { align: 'right' });
+  yPosition += 3;
 
   if (invoiceData.parkingCharges > 0) {
-    addText('Parking', 15, yPosition, 9, 'normal');
-    addText(formatCurrency(invoiceData.parkingCharges), pageWidth - 15, yPosition, 9, 'normal', 'right');
-    yPosition += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.text('Parking', chargesLabelX, yPosition);
+    doc.setFont('helvetica', 'bold');
+    doc.text(formatCurrency(invoiceData.parkingCharges), chargesX, yPosition, { align: 'right' });
+    yPosition += 3;
   }
+
   if (invoiceData.tollCharges > 0) {
-    addText('Toll', 15, yPosition, 9, 'normal');
-    addText(formatCurrency(invoiceData.tollCharges), pageWidth - 15, yPosition, 9, 'normal', 'right');
-    yPosition += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.text('Toll', chargesLabelX, yPosition);
+    doc.setFont('helvetica', 'bold');
+    doc.text(formatCurrency(invoiceData.tollCharges), chargesX, yPosition, { align: 'right' });
+    yPosition += 3;
   }
+
   if (invoiceData.driverAllowance > 0) {
-    addText('Driver Allowance', 15, yPosition, 9, 'normal');
-    addText(formatCurrency(invoiceData.driverAllowance), pageWidth - 15, yPosition, 9, 'normal', 'right');
-    yPosition += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.text('Driver Allowance', chargesLabelX, yPosition);
+    doc.setFont('helvetica', 'bold');
+    doc.text(formatCurrency(invoiceData.driverAllowance), chargesX, yPosition, { align: 'right' });
+    yPosition += 3;
   }
+
   if (invoiceData.extraCharges > 0) {
-    addText('Extra Charges', 15, yPosition, 9, 'normal');
-    addText(formatCurrency(invoiceData.extraCharges), pageWidth - 15, yPosition, 9, 'normal', 'right');
-    yPosition += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.text('Extra Charges', chargesLabelX, yPosition);
+    doc.setFont('helvetica', 'bold');
+    doc.text(formatCurrency(invoiceData.extraCharges), chargesX, yPosition, { align: 'right' });
+    yPosition += 3;
   }
 
   yPosition += 2;
-  addLine(yPosition);
-  yPosition += 5;
+  addLine(yPosition, chargesLabelX - 5, pageWidth - margin, 0.4);
 
-  // Totals
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  addText('Subtotal', 15, yPosition, 9, 'bold');
-  addText(formatCurrency(invoiceData.calculations.subtotal), pageWidth - 15, yPosition, 9, 'bold', 'right');
-  yPosition += 5;
-
-  if (invoiceData.discount > 0) {
-    addText('Discount', 15, yPosition, 9, 'normal');
-    addText(`-${formatCurrency(invoiceData.discount)}`, pageWidth - 15, yPosition, 9, 'normal', 'right');
-    yPosition += 5;
-  }
-
-  doc.setFillColor(240, 240, 240);
-  doc.rect(10, yPosition - 4, pageWidth - 20, 6, 'F');
-  addText('Total Amount', 15, yPosition, 9, 'bold');
-  addText(formatCurrency(invoiceData.calculations.totalCharges), pageWidth - 15, yPosition, 9, 'bold', 'right');
-  yPosition += 6;
-
-  if (invoiceData.advancePaid > 0) {
-    addText('Advance Paid', 15, yPosition, 9, 'normal');
-    addText(`-${formatCurrency(invoiceData.advancePaid)}`, pageWidth - 15, yPosition, 9, 'normal', 'right');
-    yPosition += 5;
-  }
-
-  // Balance Due - Highlighted
-  doc.setFillColor(200, 255, 200);
-  doc.rect(10, yPosition - 4, pageWidth - 20, 8, 'F');
-  doc.setFont('helvetica', 'bold');
-  addText('BALANCE DUE', 15, yPosition, 10, 'bold');
-  addText(formatCurrency(invoiceData.calculations.balanceDue), pageWidth - 15, yPosition, 10, 'bold', 'right');
-
-  // Footer
-  yPosition = pageHeight - 12;
-  addLine(yPosition - 2);
+  // ===== TOTALS SECTION =====
   yPosition += 3;
-  addText('Payment Method: ' + invoiceData.paymentMethod, 15, yPosition, 8, 'normal');
-  yPosition += 5;
-  addText('Thank you for travelling with Darjeeling Cabs!', pageWidth / 2, yPosition, 8, 'normal', 'center');
+
+  // Subtotal
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.text('Subtotal:', chargesLabelX, yPosition);
+  doc.setFont('helvetica', 'bold');
+  doc.text(formatCurrency(invoiceData.calculations.subtotal), chargesX, yPosition, { align: 'right' });
+  yPosition += 4;
+
+  // Discount (if any)
+  if (invoiceData.discount > 0) {
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(220, 53, 69); // Red
+    doc.text('Discount:', chargesLabelX, yPosition);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`-${formatCurrency(invoiceData.discount)}`, chargesX, yPosition, { align: 'right' });
+    yPosition += 4;
+  }
+
+  // Total Amount (gray background)
+  addRect(chargesLabelX - 5, yPosition - 2.5, pageWidth - chargesLabelX + 5, 4, lightGray);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setFontSize(9);
+  doc.text('Total Amount:', chargesLabelX, yPosition);
+  doc.text(formatCurrency(invoiceData.calculations.totalCharges), chargesX, yPosition, { align: 'right' });
+  yPosition += 4;
+
+  // Advance Paid (if any)
+  if (invoiceData.advancePaid > 0) {
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(52, 168, 224); // Light blue
+    doc.text('Advance Paid:', chargesLabelX, yPosition);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`-${formatCurrency(invoiceData.advancePaid)}`, chargesX, yPosition, { align: 'right' });
+    yPosition += 4;
+  }
+
+  // ===== BALANCE DUE (HIGHLIGHTED) =====
+  addRect(chargesLabelX - 5, yPosition - 2.5, pageWidth - chargesLabelX + 5, 6, accentColor);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(255, 255, 255);
+  doc.text('BALANCE DUE:', chargesLabelX, yPosition + 0.5);
+  doc.text(formatCurrency(invoiceData.calculations.balanceDue), chargesX, yPosition + 0.5, { align: 'right' });
+
+  // ===== FOOTER =====
+  yPosition = pageHeight - 20;
+
+  addLine(yPosition - 2, margin, pageWidth - margin, 0.5);
+
+  yPosition += 2;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.text(`Payment Method: ${invoiceData.paymentMethod}`, margin, yPosition);
+
+  yPosition += 4;
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(9);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('Thank you for travelling with Darjeeling Cabs!', pageWidth / 2, yPosition, { align: 'center' });
+
+  yPosition += 3;
+  doc.setFontSize(7);
+  doc.setTextColor(150, 150, 150);
+  doc.text('For inquiries: darjeelingcabs.com@gmail.com', pageWidth / 2, yPosition, { align: 'center' });
 };
 
 /**
@@ -188,7 +320,7 @@ const generatePDFLayout = (doc: jsPDF, invoiceData: InvoiceData): void => {
  */
 export const generatePDFInvoice = (invoiceData: InvoiceData): void => {
   const doc = new jsPDF();
-  generatePDFLayout(doc, invoiceData);
+  generateProfessionalPDF(doc, invoiceData);
   doc.save(`${invoiceData.invoiceNumber}.pdf`);
 };
 
@@ -197,7 +329,7 @@ export const generatePDFInvoice = (invoiceData: InvoiceData): void => {
  */
 export const printPDFInvoice = (invoiceData: InvoiceData): void => {
   const doc = new jsPDF();
-  generatePDFLayout(doc, invoiceData);
+  generateProfessionalPDF(doc, invoiceData);
 
   // Open in new window for printing
   const pdfDataUri = doc.output('datauristring');
