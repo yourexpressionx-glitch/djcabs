@@ -56,16 +56,19 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   // ===== HEADER SECTION (Centered) =====
   doc.setFillColor(255, 255, 255);
 
-  // Logo
+  // Logo - maintain aspect ratio
   if (logoBase64) {
     try {
-      const logoWidth = 20;
+      const logoWidth = 25;
       const logoX = (pageWidth - logoWidth) / 2;
-      doc.addImage(logoBase64, 'PNG', logoX, yPosition, logoWidth, 15);
-      yPosition += 22;
+      // Only specify width, let jsPDF calculate height to maintain aspect ratio
+      doc.addImage(logoBase64, 'PNG', logoX, yPosition, logoWidth);
+      yPosition += 20;
     } catch (error) {
       console.error('Error adding logo:', error);
     }
+  } else {
+    yPosition += 5;
   }
 
   // Company Name

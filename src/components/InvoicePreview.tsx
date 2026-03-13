@@ -27,7 +27,7 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) =
           <img 
             src="/images/logo.png" 
             alt="DarjeelingCabs Logo" 
-            className="h-12 w-auto"
+            className="h-16 w-auto object-contain"
           />
         </div>
         <h1 className="text-xl font-bold text-black">DARJEELING CABS</h1>
