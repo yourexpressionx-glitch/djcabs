@@ -135,8 +135,9 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   const col1X = margin;
   const col2X = margin + 12;
   const col3X = margin + 50;
-  const col4X = margin + 85;
-  const col5X = pageWidth - margin - 25;
+  const col4X = margin + 75;
+  const col5X = margin + 105;
+  const col6X = pageWidth - margin - 25;
 
   doc.setTextColor(255, 255, 255);
   doc.setFillColor(100, 100, 100);
@@ -147,8 +148,9 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
   doc.text('Day', col1X, yPosition);
   doc.text('Destination', col2X, yPosition);
   doc.text('Days', col4X, yPosition);
-  doc.text('Vehicle', col4X + 20, yPosition);
-  doc.text('Rate (Rs.)', col5X, yPosition);
+  doc.text('Vehicle', col5X, yPosition);
+  doc.text('Vehicle #', col5X + 15, yPosition);
+  doc.text('Rate (Rs.)', col6X, yPosition);
 
   yPosition += 5;
 
@@ -173,10 +175,11 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
     doc.text(day.day.toString(), col1X, yPosition);
     doc.text(day.destination, col2X, yPosition);
     doc.text(day.numberOfDays.toString(), col4X, yPosition);
-    doc.text(day.vehicleType, col4X + 20, yPosition);
+    doc.text(day.vehicleType, col5X, yPosition);
+    doc.text(day.vehicleNumber || '', col5X + 15, yPosition);
     
     doc.setFont('helvetica', 'bold');
-    doc.text(formatCurrencyForPDF(day.rate), col5X, yPosition);
+    doc.text(formatCurrencyForPDF(day.rate), col6X, yPosition);
     
     yPosition += 4;
   });

@@ -20,7 +20,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
     driverName: '',
     numberOfPassengers: 1,
     dailyItinerary: [
-      { day: 1, destination: '', numberOfDays: 1, vehicleType: 'Sedan', rate: 0 }
+      { day: 1, destination: '', numberOfDays: 1, vehicleType: 'Sedan', vehicleNumber: '', rate: 0 }
     ],
     parkingCharges: 0,
     tollCharges: 0,
@@ -67,7 +67,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
         ...prev,
         dailyItinerary: [
           ...prev.dailyItinerary,
-          { day: nextDay, destination: '', numberOfDays: 1, vehicleType: 'Sedan', rate: 0 }
+          { day: nextDay, destination: '', numberOfDays: 1, vehicleType: 'Sedan', vehicleNumber: '', rate: 0 }
         ]
       };
     });
@@ -292,6 +292,17 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
                   <option value="Innova">Innova</option>
                   <option value="Tempo Traveller">Tempo</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle #</label>
+                <input
+                  type="text"
+                  value={day.vehicleNumber || ''}
+                  onChange={(e) => handleDayChange(idx, 'vehicleNumber', e.target.value)}
+                  placeholder="e.g., DL-01-AB-1234"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  aria-label={`Vehicle Number Day ${idx + 1}`}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Rate (₹) <span className="text-red-500">*</span></label>

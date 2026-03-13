@@ -70,6 +70,7 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) =
               <th className="border border-gray-400 p-2 text-left text-black font-bold">Destination</th>
               <th className="border border-gray-400 p-2 text-center text-black font-bold">Days</th>
               <th className="border border-gray-400 p-2 text-left text-black font-bold">Vehicle</th>
+              <th className="border border-gray-400 p-2 text-left text-black font-bold">Vehicle #</th>
               <th className="border border-gray-400 p-2 text-right text-black font-bold">Rate (₹)</th>
             </tr>
           </thead>
@@ -80,6 +81,7 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) =
                 <td className="border border-gray-300 p-2 text-black">{day.destination}</td>
                 <td className="border border-gray-300 p-2 text-black text-center">{day.numberOfDays}</td>
                 <td className="border border-gray-300 p-2 text-black">{day.vehicleType}</td>
+                <td className="border border-gray-300 p-2 text-black">{day.vehicleNumber}</td>
                 <td className="border border-gray-300 p-2 text-black text-right font-semibold">{formatCurrency(day.rate)}</td>
               </tr>
             ))}

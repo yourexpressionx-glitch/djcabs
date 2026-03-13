@@ -3,6 +3,7 @@ export interface DailyItinerary {
   destination: string;
   numberOfDays: number;
   vehicleType: 'Sedan' | 'SUV' | 'Innova' | 'Tempo Traveller';
+  vehicleNumber: string;
   rate: number;
 }
 
