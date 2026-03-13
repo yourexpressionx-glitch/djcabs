@@ -22,24 +22,41 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) =
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg h-full overflow-auto">
       {/* Header with Logo */}
-      <div className="text-center mb-6 pb-4 border-b-2 border-gray-300">
-        <div className="flex justify-center mb-3">
+      <div className="text-center mb-4 pb-3 border-b-2 border-gray-300">
+        <div className="flex justify-center mb-2">
           <img 
             src="/images/logo.png" 
             alt="DarjeelingCabs Logo" 
-            className="h-14 w-auto"
+            className="h-12 w-auto"
           />
         </div>
-        <h1 className="text-2xl font-bold text-black">DARJEELING CABS</h1>
-        <p className="text-black text-xs font-medium">📍 Darjeeling • Sikkim • Bhutan • Nepal</p>
-        <p className="text-black text-xs">📧 darjeelingcabs.com@gmail.com</p>
-        <div className="mt-2">
-          <p className="text-black font-bold text-lg">TAX INVOICE</p>
+        <h1 className="text-xl font-bold text-black">DARJEELING CABS</h1>
+        <p className="text-black text-xs">Dawa Lama Dukpa</p>
+        <div className="mt-1">
+          <p className="text-black font-bold text-sm">TAX INVOICE</p>
+        </div>
+      </div>
+
+      {/* Company Details */}
+      <div className="mb-4 pb-3 border-b border-gray-300 text-xs">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-black">
+            <p className="font-semibold">Darjeeling Cabs</p>
+            <p>Jorebunglow near the forest office</p>
+            <p>Darjeeling, West Bengal - 734102</p>
+          </div>
+          <div className="text-black text-right">
+            <p>M: +91 7407616130 (WhatsApp)</p>
+            <p>M: +91 9382480285 (Calling)</p>
+            <p>Phone: 0353-3559491</p>
+            <p>Email: darjeelingcabs.com@gmail.com</p>
+            <p>Website: www.darjeelingcabs.com</p>
+          </div>
         </div>
       </div>
 
       {/* Invoice Details */}
-      <div className="flex justify-between mb-6 text-xs">
+      <div className="flex justify-between mb-4 text-xs">
         <div>
           <p className="text-black font-semibold">Invoice No: {invoiceData.invoiceNumber}</p>
           <p className="text-black">Date: {invoiceData.invoiceDate}</p>

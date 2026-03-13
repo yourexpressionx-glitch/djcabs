@@ -62,28 +62,53 @@ const generateProfessionalPDF = (doc: jsPDF, invoiceData: InvoiceData, logoBase6
       const logoWidth = 20;
       const logoX = (pageWidth - logoWidth) / 2;
       doc.addImage(logoBase64, 'PNG', logoX, yPosition, logoWidth, 15);
-      yPosition += 25;
+      yPosition += 22;
     } catch (error) {
       console.error('Error adding logo:', error);
     }
   }
 
   // Company Name
-  addText('DARJEELING CABS', pageWidth / 2, yPosition, 20, 'bold', [0, 0, 0], 'center');
-  
-  yPosition += 7;
-  addText('Darjeeling • Sikkim • Bhutan • Nepal', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
+  addText('DARJEELING CABS', pageWidth / 2, yPosition, 16, 'bold', [0, 0, 0], 'center');
   yPosition += 4;
-  addText('darjeelingcabs.com@gmail.com', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
-  yPosition += 5;
+  addText('Dawa Lama Dukpa', pageWidth / 2, yPosition, 8, 'normal', [0, 0, 0], 'center');
+  yPosition += 4;
 
   // TAX INVOICE label
-  addText('TAX INVOICE', pageWidth / 2, yPosition, 14, 'bold', [0, 100, 0], 'center');
-  yPosition += 8;
+  addText('TAX INVOICE', pageWidth / 2, yPosition, 12, 'bold', [0, 100, 0], 'center');
+  yPosition += 6;
 
   // Border line
-  addLine(yPosition, margin, pageWidth - margin, 1);
+  addLine(yPosition, margin, pageWidth - margin, 0.8);
+  yPosition += 3;
+
+  // ===== COMPANY DETAILS =====
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
+
+  // Left side - Address
+  doc.text('Darjeeling Cabs', margin, yPosition);
+  yPosition += 3;
+  doc.text('Jorebunglow near the forest office', margin, yPosition);
+  yPosition += 3;
+  doc.text('Darjeeling, West Bengal - 734102', margin, yPosition);
+  yPosition += 3;
+
+  // Right side - Contact details
+  const rightContactX = pageWidth - margin - 70;
+  doc.text('M: +91 7407616130 (WhatsApp)', rightContactX, yPosition - 9);
+  doc.text('M: +91 9382480285 (Calling)', rightContactX, yPosition - 6);
+  doc.text('Phone: 0353-3559491', rightContactX, yPosition - 3);
+  yPosition += 1;
+  doc.text('Email: darjeelingcabs.com@gmail.com', margin, yPosition);
+  yPosition += 3;
+  doc.text('Website: www.darjeelingcabs.com', margin, yPosition);
   yPosition += 4;
+
+  // Border line
+  addLine(yPosition, margin, pageWidth - margin, 0.5);
+  yPosition += 3;
 
   // ===== INVOICE DETAILS =====
   addText(`Invoice No: ${invoiceData.invoiceNumber}`, margin, yPosition, 9, 'bold', [0, 0, 0]);
