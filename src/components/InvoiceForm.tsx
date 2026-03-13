@@ -94,14 +94,14 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
     onInvoiceGenerated(invoiceData);
   }, [formData, onInvoiceGenerated]);
 
-  const handleDownloadPDF = useCallback(() => {
+  const handleDownloadPDF = useCallback(async () => {
     const invoiceData = generateInvoiceData(formData);
-    generatePDFInvoice(invoiceData);
+    await generatePDFInvoice(invoiceData);
   }, [formData]);
 
-  const handlePrintPDF = useCallback(() => {
+  const handlePrintPDF = useCallback(async () => {
     const invoiceData = generateInvoiceData(formData);
-    printPDFInvoice(invoiceData);
+    await printPDFInvoice(invoiceData);
   }, [formData]);
 
   const handleWhatsAppShare = useCallback(() => {
