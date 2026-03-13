@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { InvoiceFormData, InvoiceData } from '@/types/invoice';
+import { InvoiceFormData, InvoiceData, DailyItinerary } from '@/types/invoice';
 import { generateInvoiceData } from '@/lib/invoiceUtils';
 import { generatePDFInvoice, printPDFInvoice } from '@/lib/pdfGenerator';
 import { generateWhatsAppURL } from '@/lib/invoiceUtils';
@@ -13,16 +13,15 @@ interface InvoiceFormProps {
 export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) => {
   const [formData, setFormData] = useState<InvoiceFormData>({
     customerName: '',
+    customerAddress: '',
+    customerCity: '',
     phoneNumber: '',
-    pickupLocation: '',
-    dropLocation: '',
     tripDate: '',
-    vehicleType: 'Sedan',
     driverName: '',
-    tripType: 'Pickup',
     numberOfPassengers: 1,
-    distance: 0,
-    tripPrice: 0,
+    dailyItinerary: [
+      { day: 1, destination: '', numberOfDays: 1, vehicleType: 'Sedan', rate: 0 }
+    ],
     parkingCharges: 0,
     tollCharges: 0,
     driverAllowance: 0,
@@ -38,7 +37,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
       setFormData((prev) => ({
         ...prev,
         [name]:
-          ['numberOfPassengers', 'distance', 'tripPrice', 'parkingCharges', 'tollCharges', 'driverAllowance', 'extraCharges', 'discount', 'advancePaid'].includes(name)
+          ['numberOfPassengers', 'parkingCharges', 'tollCharges', 'driverAllowance', 'extraCharges', 'discount', 'advancePaid'].includes(name)
             ? parseFloat(value) || 0
             : value,
       }));
@@ -46,10 +45,48 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
     []
   );
 
+  const handleDayChange = useCallback(
+    (dayIndex: number, field: keyof DailyItinerary, value: any) => {
+      setFormData((prev) => {
+        const newItinerary = [...prev.dailyItinerary];
+        if (field === 'day' || field === 'numberOfDays' || field === 'rate') {
+          newItinerary[dayIndex] = { ...newItinerary[dayIndex], [field]: parseFloat(value) || 0 };
+        } else {
+          newItinerary[dayIndex] = { ...newItinerary[dayIndex], [field]: value };
+        }
+        return { ...prev, dailyItinerary: newItinerary };
+      });
+    },
+    []
+  );
+
+  const handleAddDay = useCallback(() => {
+    setFormData((prev) => {
+      const nextDay = prev.dailyItinerary.length + 1;
+      return {
+        ...prev,
+        dailyItinerary: [
+          ...prev.dailyItinerary,
+          { day: nextDay, destination: '', numberOfDays: 1, vehicleType: 'Sedan', rate: 0 }
+        ]
+      };
+    });
+  }, []);
+
+  const handleRemoveDay = useCallback((dayIndex: number) => {
+    setFormData((prev) => {
+      const newItinerary = prev.dailyItinerary
+        .filter((_, idx) => idx !== dayIndex)
+        .map((day, idx) => ({ ...day, day: idx + 1 }));
+      return { ...prev, dailyItinerary: newItinerary };
+    });
+  }, []);
+
   const handleGeneratePreview = useCallback(() => {
-    // Validate required fields
-    if (!formData.customerName || !formData.phoneNumber || !formData.pickupLocation || !formData.dropLocation || !formData.tripDate) {
-      alert('Please fill in all required fields');
+    const requiredFields = formData.customerName && formData.phoneNumber && formData.tripDate && 
+                          formData.dailyItinerary.every(d => d.destination && d.rate > 0);
+    if (!requiredFields) {
+      alert('Please fill in all required fields (name, phone, date, and at least one destination with rate)');
       return;
     }
 
@@ -78,12 +115,12 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
   }, [formData]);
 
   return (
-    <form className="space-y-6 max-w-2xl">
+    <form className="space-y-6 max-w-3xl">
       {/* Section: Customer Details */}
       <div className="bg-gray-50 p-4 rounded-lg">
         <h3 className="text-lg font-semibold mb-4 text-gray-900">Customer Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div className="md:col-span-2">
             <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
               Customer Name <span className="text-red-500">*</span>
             </label>
@@ -96,6 +133,36 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="Enter customer name"
               aria-label="Customer Name"
+            />
+          </div>
+          <div>
+            <label htmlFor="customerAddress" className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
+            <input
+              id="customerAddress"
+              type="text"
+              name="customerAddress"
+              value={formData.customerAddress}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              placeholder="Street address"
+              aria-label="Customer Address"
+            />
+          </div>
+          <div>
+            <label htmlFor="customerCity" className="block text-sm font-medium text-gray-700 mb-1">
+              City
+            </label>
+            <input
+              id="customerCity"
+              type="text"
+              name="customerCity"
+              value={formData.customerCity}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              placeholder="City"
+              aria-label="Customer City"
             />
           </div>
           <div>
@@ -135,76 +202,6 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
             />
           </div>
           <div>
-            <label htmlFor="tripType" className="block text-sm font-medium text-gray-700 mb-1">Trip Type</label>
-            <select
-              id="tripType"
-              name="tripType"
-              value={formData.tripType}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              aria-label="Trip Type"
-            >
-              <option value="Pickup">Pickup</option>
-              <option value="Drop">Drop</option>
-              <option value="Sightseeing">Sightseeing</option>
-              <option value="Full Day">Full Day</option>
-              <option value="Multi Day">Multi Day</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="pickupLocation" className="block text-sm font-medium text-gray-700 mb-1">
-              Pickup Location <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="pickupLocation"
-              type="text"
-              name="pickupLocation"
-              value={formData.pickupLocation}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              placeholder="e.g., Siliguri"
-              aria-label="Pickup Location"
-            />
-          </div>
-          <div>
-            <label htmlFor="dropLocation" className="block text-sm font-medium text-gray-700 mb-1">
-              Drop Location <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="dropLocation"
-              type="text"
-              name="dropLocation"
-              value={formData.dropLocation}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              placeholder="e.g., Darjeeling"
-              aria-label="Drop Location"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Section: Vehicle & Driver */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">Vehicle & Driver</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="vehicleType" className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
-            <select
-              id="vehicleType"
-              name="vehicleType"
-              value={formData.vehicleType}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              aria-label="Vehicle Type"
-            >
-              <option value="Sedan">Sedan</option>
-              <option value="SUV">SUV</option>
-              <option value="Innova">Innova</option>
-              <option value="Tempo Traveller">Tempo Traveller</option>
-            </select>
-          </div>
-          <div>
             <label htmlFor="driverName" className="block text-sm font-medium text-gray-700 mb-1">Driver Name</label>
             <input
               id="driverName"
@@ -230,41 +227,104 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
               aria-label="Number of Passengers"
             />
           </div>
-          <div>
-            <label htmlFor="distance" className="block text-sm font-medium text-gray-700 mb-1">Distance (km)</label>
-            <input
-              id="distance"
-              type="number"
-              name="distance"
-              value={formData.distance}
-              onChange={handleInputChange}
-              min="0"
-              step="0.1"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              aria-label="Distance"
-            />
-          </div>
         </div>
       </div>
 
-      {/* Section: Charges */}
+      {/* Section: Daily Itinerary */}
       <div className="bg-gray-50 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">Charges (₹)</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="tripPrice" className="block text-sm font-medium text-gray-700 mb-1">Trip Price</label>
-            <input
-              id="tripPrice"
-              type="number"
-              name="tripPrice"
-              value={formData.tripPrice}
-              onChange={handleInputChange}
-              min="0"
-              step="10"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              aria-label="Trip Price"
-            />
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Daily Itinerary</h3>
+          <button
+            type="button"
+            onClick={handleAddDay}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded transition"
+          >
+            + Add Day
+          </button>
+        </div>
+        
+        {formData.dailyItinerary.map((day, idx) => (
+          <div key={idx} className="mb-4 p-3 border border-gray-300 rounded-lg bg-white">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 items-end">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Day</label>
+                <input
+                  type="number"
+                  value={day.day}
+                  onChange={(e) => handleDayChange(idx, 'day', e.target.value)}
+                  min="1"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  aria-label={`Day ${idx + 1}`}
+                />
+              </div>
+              <div className="md:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Destination <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  value={day.destination}
+                  onChange={(e) => handleDayChange(idx, 'destination', e.target.value)}
+                  placeholder="e.g., Darjeeling"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  aria-label={`Destination Day ${idx + 1}`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">No. of Days</label>
+                <input
+                  type="number"
+                  value={day.numberOfDays}
+                  onChange={(e) => handleDayChange(idx, 'numberOfDays', e.target.value)}
+                  min="1"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  aria-label={`Number of Days ${idx + 1}`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle</label>
+                <select
+                  value={day.vehicleType}
+                  onChange={(e) => handleDayChange(idx, 'vehicleType', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm"
+                  aria-label={`Vehicle Type Day ${idx + 1}`}
+                >
+                  <option value="Sedan">Sedan</option>
+                  <option value="SUV">SUV</option>
+                  <option value="Innova">Innova</option>
+                  <option value="Tempo Traveller">Tempo</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rate (₹) <span className="text-red-500">*</span></label>
+                <input
+                  type="number"
+                  value={day.rate}
+                  onChange={(e) => handleDayChange(idx, 'rate', e.target.value)}
+                  min="0"
+                  step="100"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  aria-label={`Rate Day ${idx + 1}`}
+                />
+              </div>
+              <div>
+                {formData.dailyItinerary.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveDay(idx)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded transition h-10 w-full"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
+        ))}
+      </div>
+
+      {/* Section: Other Charges */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Other Charges (₹)</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="parkingCharges" className="block text-sm font-medium text-gray-700 mb-1">Parking Charges</label>
             <input
@@ -321,8 +381,15 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
               aria-label="Extra Charges"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Section: Payment */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Payment</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="discount" className="block text-sm font-medium text-gray-700 mb-1">Discount</label>
+            <label htmlFor="discount" className="block text-sm font-medium text-gray-700 mb-1">Discount (₹)</label>
             <input
               id="discount"
               type="number"
@@ -335,15 +402,8 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
               aria-label="Discount"
             />
           </div>
-        </div>
-      </div>
-
-      {/* Section: Payment */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">Payment</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="advancePaid" className="block text-sm font-medium text-gray-700 mb-1">Advance Paid</label>
+            <label htmlFor="advancePaid" className="block text-sm font-medium text-gray-700 mb-1">Advance Paid (₹)</label>
             <input
               id="advancePaid"
               type="number"

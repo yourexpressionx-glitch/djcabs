@@ -26,13 +26,13 @@
 4. Copy the generated token (this is your access token)
 
 ### Step 5: Add to Environment Variables
-Create `.env.local` file in your project root:
+Create `.env.local` file in your project root (same level as `package.json`):
 
 ```
-NEXT_PUBLIC_INSTAGRAM_ACCESS_TOKEN=your_token_here
+INSTAGRAM_ACCESS_TOKEN=your_token_here
 ```
 
-⚠️ **Important**: Use `NEXT_PUBLIC_` prefix so it's accessible in browser
+⚠️ **Important**: Do NOT use `NEXT_PUBLIC_` prefix - this token should remain private and only used on the server
 
 ### Step 6: Restart Dev Server
 ```bash

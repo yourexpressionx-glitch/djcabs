@@ -1,15 +1,20 @@
+export interface DailyItinerary {
+  day: number;
+  destination: string;
+  numberOfDays: number;
+  vehicleType: 'Sedan' | 'SUV' | 'Innova' | 'Tempo Traveller';
+  rate: number;
+}
+
 export interface InvoiceFormData {
   customerName: string;
+  customerAddress: string;
+  customerCity: string;
   phoneNumber: string;
-  pickupLocation: string;
-  dropLocation: string;
   tripDate: string;
-  vehicleType: 'Sedan' | 'SUV' | 'Innova' | 'Tempo Traveller';
   driverName: string;
-  tripType: 'Pickup' | 'Drop' | 'Sightseeing' | 'Full Day' | 'Multi Day';
   numberOfPassengers: number;
-  distance: number;
-  tripPrice: number;
+  dailyItinerary: DailyItinerary[];
   parkingCharges: number;
   tollCharges: number;
   driverAllowance: number;

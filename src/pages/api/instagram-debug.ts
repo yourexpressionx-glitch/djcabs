@@ -5,9 +5,11 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    const token = process.env.INSTAGRAM_ACCESS_TOKEN;
+    // Check both with and without NEXT_PUBLIC_ prefix for compatibility
+    const token = process.env.INSTAGRAM_ACCESS_TOKEN || process.env.NEXT_PUBLIC_INSTAGRAM_ACCESS_TOKEN;
 
     if (!token) {
+      console.error('Instagram Debug Error: Missing Instagram access token. Set INSTAGRAM_ACCESS_TOKEN in .env.local');
       return res.status(500).json({ error: 'Missing Instagram access token' });
     }
 

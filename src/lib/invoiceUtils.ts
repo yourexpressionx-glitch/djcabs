@@ -13,9 +13,12 @@ export const generateInvoiceNumber = (): string => {
  * Calculate invoice totals
  */
 export const calculateInvoice = (data: InvoiceFormData): InvoiceCalculations => {
+  // Calculate trip total from daily itinerary
+  const tripTotal = data.dailyItinerary.reduce((sum, day) => sum + (day.rate || 0), 0);
+
   // Subtotal = sum of all charges (before discount)
   const subtotal =
-    data.tripPrice +
+    tripTotal +
     data.parkingCharges +
     data.tollCharges +
     data.driverAllowance +
@@ -66,18 +69,23 @@ export const formatCurrency = (amount: number): string => {
  * Generate WhatsApp message for invoice
  */
 export const generateWhatsAppMessage = (invoiceData: InvoiceData): string => {
-  const tripRoute = `${invoiceData.pickupLocation} → ${invoiceData.dropLocation}`;
   const amount = formatCurrency(invoiceData.calculations.balanceDue);
   const invoiceNumber = invoiceData.invoiceNumber;
+  
+  const itineraryText = invoiceData.dailyItinerary
+    .map(day => `Day ${day.day}: ${day.destination} (${day.numberOfDays}D, ${day.vehicleType}) - ₹${day.rate}`)
+    .join('\n');
 
   const message = `Hello, here is your trip invoice from DarjeelingCabs.
 
 📋 Invoice: ${invoiceNumber}
-🚕 Trip: ${tripRoute}
+👤 Customer: ${invoiceData.customerName}
 📅 Date: ${invoiceData.invoiceDate}
+
+📍 Itinerary:
+${itineraryText}
+
 💰 Amount Due: ${amount}
-🚗 Vehicle: ${invoiceData.vehicleType}
-📍 Distance: ${invoiceData.distance} km
 
 Thank you for travelling with DarjeelingCabs!`;
 
