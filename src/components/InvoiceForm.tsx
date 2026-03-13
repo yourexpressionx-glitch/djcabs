@@ -449,23 +449,22 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onInvoiceGenerated }) 
         >
           Generate Invoice Preview
         </button>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex gap-3 mt-4">
           <button
             type="button"
             onClick={handleDownloadPDF}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition"
           >
-            📥 Download PDF
+            Download PDF
           </button>
-
+          <button
+            type="button"
+            onClick={handleWhatsAppShare}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition"
+          >
+            Send via WhatsApp
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleWhatsAppShare}
-          className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition"
-        >
-          💬 Send via WhatsApp
-        </button>
       </div>
     </form>
   );
